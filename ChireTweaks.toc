@@ -1,0 +1,42 @@
+## Interface: 100200
+## Title: Chire Tweaks
+## Author: Chire
+## Version: 1.0.0-rc1
+## IconTexture: Interface\AddOns\ChireTweaks\Media\icon.blp
+## SavedVariables: ChireTweaksDB
+## OptionalDeps: Ace3, LibSharedMedia-3.0
+## X-Curse-Project-ID: 947906
+## X-WoWI-ID: 26658
+## X-Wago-ID: Q6aEkP6W
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceHook-3.0\AceHook-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\LibSharedMedia-3.0\lib.xml
+
+Data\Constants.lua
+
+Locales\enUS.lua
+
+ChireTweaks.lua
+Commons\Utils.lua
+Commons\Options.lua
+Commons\FontsAndColors.lua
+Commons\Formats.lua
+Commons\ToT.lua
+Data\UnitData.lua
+HealthbarColor.lua
+Hideables.lua
+StatusBars.lua
+Name.lua
+Level.lua
+Data\OptionData.lua
+Config\Widgets.lua
+Config\Config.lua
