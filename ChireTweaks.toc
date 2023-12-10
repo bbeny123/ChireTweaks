@@ -1,7 +1,7 @@
 ## Interface: 100200
 ## Title: Chire Tweaks
 ## Author: Chire
-## Version: 1.0.0-rc1
+## Version: 1.0.0-rc2
 ## IconTexture: Interface\AddOns\ChireTweaks\Media\icon.blp
 ## SavedVariables: ChireTweaksDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0

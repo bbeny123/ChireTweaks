@@ -27,11 +27,11 @@ function ct.ToggleBattlePetIcon(unitData)
 end
 
 function ct.ToggleThreatGlow(unitData)
-    HideOnShowAndUpdate(unitData, ns.KEY.GLOW_THREAT, unitData.ThreatGlow, unitData.BaseUpdate)
+    HideOnShowAndUpdate(unitData, ns.KEY.GLOW_THREAT, unitData.ThreatGlow, unitData.UpdateThreatIndicator)
 end
 
 function ct.TogglePartyPetThreatGlow(unitData)
-    HideOnShowAndUpdate(unitData, ns.KEY.GLOW_THREAT_PP, unitData.PetThreatGlow, unitData.PetBaseUpdate)
+    HideOnShowAndUpdate(unitData, ns.KEY.GLOW_THREAT_PP, unitData.PetThreatGlow, unitData.UpdatePetThreatIndicator)
 end
 
 function ct.ToggleDebuffGlow(unitData)

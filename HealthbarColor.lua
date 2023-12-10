@@ -91,7 +91,7 @@ local function ToggleColoredHealthbar(unitData, key, cacheKey, partyPet, HealthB
         end
     end
 
-    ct.Handle(unitData, HealthBar or unitData.HealthBar, Handler, Update or unitData.BaseUpdate)
+    ct.Handle(unitData, HealthBar or unitData.HealthBar, Handler, Update or unitData.UpdateHealthBar)
 end
 
 function ct.ToggleClassColoredHealthbar(unitData)
@@ -99,7 +99,7 @@ function ct.ToggleClassColoredHealthbar(unitData)
 end
 
 function ct.ToggleClassColoredPartyPetHealthbar(unitData)
-    ToggleColoredHealthbar(unitData, ns.KEY.COLOR_CLASS_PP, ns.KEY.COLOR_CLASS, true, unitData.PetHealthBar, unitData.PetBaseUpdate, unitData.PetClassUnit)
+    ToggleColoredHealthbar(unitData, ns.KEY.COLOR_CLASS_PP, ns.KEY.COLOR_CLASS, true, unitData.PetHealthBar, unitData.UpdatePetHealthBar, unitData.PetClassUnit)
 end
 
 function ct.ToggleReactionColoredHealthbar(unitData)
