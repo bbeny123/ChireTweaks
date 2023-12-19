@@ -35,6 +35,10 @@ local function DefaultSize(unit, option)
             or ns.DEFAULT_SIZE
 end
 
+local function DefaultCastBarIconVisibility(unit)
+    return unit ~= ns.UNIT.PLAYER or not ns.PlayerCastBarDetached()
+end
+
 local function BaseOption(type, key, Handler, default, enabled, disabledValue)
     return {
         type = type,
@@ -57,6 +61,13 @@ local function AddToggleableOption(options, type, key, Handler, enabled, default
     table.insert(ns.OPTIONS_SORTED[type], option)
 end
 
+local function AddFontsOptions(options, type, FontHandler, ColorHandler, enabled, defaultSize, defaultStyle, defaultColor)
+    AddBaseOption(options, type, ns.KEY.FONT, FontHandler, ns.DEFAULT_FONT, enabled)
+    AddBaseOption(options, type, ns.KEY.STYLE, FontHandler, defaultStyle or ns.STYLE.OUTLINE, enabled)
+    AddBaseOption(options, type, ns.KEY.COLOR, ColorHandler, defaultColor or ns.HEX_WHITE, enabled)
+    AddBaseOption(options, type, ns.KEY.SIZE, FontHandler, defaultSize or ns.DEFAULT_SIZE, enabled)
+end
+
 local function OptionsStatusText(type, fontEnabled)
     local options = {}
 
@@ -64,10 +75,7 @@ local function OptionsStatusText(type, fontEnabled)
     AddBaseOption(options, type, ns.KEY.FULL, ct.SetStatusBarFormat, DefaultFormat)
     AddBaseOption(options, type, ns.KEY.ZERO, ct.SetStatusBarFormat, DefaultFormat)
     AddBaseOption(options, type, ns.KEY.HOVER, ct.SetStatusBarFormat, DefaultFormat)
-    AddBaseOption(options, type, ns.KEY.FONT, ct.SetStatusBarFont, ns.DEFAULT_FONT, fontEnabled)
-    AddBaseOption(options, type, ns.KEY.STYLE, ct.SetStatusBarFont, ns.STYLE.OUTLINE, fontEnabled)
-    AddBaseOption(options, type, ns.KEY.COLOR, ct.SetStatusBarTextColor, ns.HEX_WHITE, fontEnabled)
-    AddBaseOption(options, type, ns.KEY.SIZE, ct.SetStatusBarFont, DefaultSize, fontEnabled)
+    AddFontsOptions(options, type, ct.SetStatusBarFont, ct.SetStatusBarTextColor, fontEnabled, DefaultSize)
 
     return options
 end
@@ -76,10 +84,7 @@ local function OptionsNameOrLevelBase(type, ShowHandler, FontHandler, ColorHandl
     local options = {}
 
     AddBaseOption(options, type, ns.KEY.SHOW, ShowHandler, true, enabled)
-    AddBaseOption(options, type, ns.KEY.FONT, FontHandler, ns.DEFAULT_FONT, enabled)
-    AddBaseOption(options, type, ns.KEY.STYLE, FontHandler, ns.STYLE.NONE, enabled)
-    AddBaseOption(options, type, ns.KEY.COLOR, ColorHandler, ns.HEX_YELLOW, enabled)
-    AddBaseOption(options, type, ns.KEY.SIZE, FontHandler, ns.DEFAULT_SIZE, enabled)
+    AddFontsOptions(options, type, FontHandler, ColorHandler, enabled, ns.DEFAULT_SIZE, ns.STYLE.NONE, ns.HEX_YELLOW)
 
     return options
 end
@@ -98,6 +103,31 @@ local function OptionsLevel(type)
 
     AddBaseOption(options, type, ns.KEY.COLOR_LEVEL, ct.SetLevelColor, true,
             DefaultOrOppositeFor(false, ns.UNIT.TARGET, ns.UNIT.FOCUS, ns.UNIT.BOSS), false)
+
+    return options
+end
+
+local function OptionsCastbar(type)
+    local options = {}
+    local enabled = DefaultOrOppositeFor(false, ns.UNIT.PLAYER, ns.UNIT.TARGET, ns.UNIT.FOCUS)
+
+    AddBaseOption(options, type, ns.KEY.MOVE, ct.MoveCastbar, false, enabled)
+    AddBaseOption(options, type, ns.KEY.X, ct.MoveCastbar, 0, enabled)
+    AddBaseOption(options, type, ns.KEY.Y, ct.MoveCastbar, 0, enabled)
+    AddFontsOptions(options, type, ct.SetSpellNameFont, ct.SetSpellNameColor, enabled)
+    AddBaseOption(options, type, ns.KEY.ICON, ct.ToggleIcon, DefaultCastBarIconVisibility, enabled, false)
+
+    return options
+end
+
+local function OptionsCastbarTimer(type)
+    local options = {}
+    local enabled = DefaultOrOppositeFor(false, ns.UNIT.PLAYER, ns.UNIT.TARGET, ns.UNIT.FOCUS)
+
+    AddBaseOption(options, type, ns.KEY.SHOW, ct.ToggleCastTime, false, DefaultOrOppositeFor(false, ns.UNIT.TARGET, ns.UNIT.FOCUS))
+    AddBaseOption(options, type, ns.KEY.X, ct.MoveCastTime, 0, enabled)
+    AddBaseOption(options, type, ns.KEY.Y, ct.MoveCastTime, 0, enabled)
+    AddFontsOptions(options, type, ct.SetCastTimeFont, ct.SetCastTimeColor, enabled, 16)
 
     return options
 end
@@ -199,6 +229,8 @@ ns.OPTIONS = {
     [ns.TYPE.LEVEL] = OptionsLevel(ns.TYPE.LEVEL),
     [ns.TYPE.HP_BAR] = OptionsHealthbar(ns.TYPE.HP_BAR),
     [ns.TYPE.HIDE] = OptionsHide(ns.TYPE.HIDE),
+    [ns.TYPE.CASTBAR] = OptionsCastbar(ns.TYPE.CASTBAR),
+    [ns.TYPE.CASTBAR_TIMER] = OptionsCastbarTimer(ns.TYPE.CASTBAR_TIMER),
     [ns.TYPE.CHAT] = {
     },
 }

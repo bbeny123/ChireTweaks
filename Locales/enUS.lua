@@ -19,6 +19,8 @@ L["colorPicker.invalid"] = "Enter a valid hex color code\n(#RRGGBB or #AARRGGBB)
 L["colorPicker"] = "Color picker"
 L[ns.Desc("colorPicker")] = "Choose a color by either using picker or typing its hexadecimal code into the field on the left (#AARRBBGG, #RRBBGG)\n\nIt can also be reset to default color (#%s) using the button on the right."
 
+L["offset.invalid"] = "Enter valid number\n\nExample valid point: -420.69"
+
 L["button.reset"] = "Reset to default"
 L["button.copy"] = "Copy"
 
@@ -34,6 +36,8 @@ L["nameLevel.header.name"] = "Name"
 L["nameLevel.header.nameLevel"] = "Name & Level"
 L["formats.header"] = "Status Bars Text - Format & Font"
 
+L["castbar.header.name"] = "Castbar"
+
 L[ns.TYPE.HEALTH] = "Health"
 L[ns.TYPE.MANA] = "Mana"
 L[ns.TYPE.POWER] = "Other resources"
@@ -43,6 +47,10 @@ L[ns.TYPE.LEVEL] = "Level"
 L[ns.Desc(ns.TYPE.LEVEL)] = "Show %s level"
 L[ns.TYPE.HP_BAR] = "Healthbar color"
 L[ns.TYPE.HIDE] = "Icons & Indicators & Glow effects"
+L[ns.TYPE.CASTBAR] = "Castbar"
+L[ns.Desc(ns.TYPE.CASTBAR)] = "Move castbar.\n\nWorks only with the attached castbar."
+L[ns.TYPE.CASTBAR_TIMER] = "Timer"
+L[ns.Desc(ns.TYPE.CASTBAR_TIMER)] = "Show cast time"
 L[ns.TYPE.CHAT] = "Chat"
 
 L[ns.UNIT.PLAYER] = "Player"
@@ -95,7 +103,10 @@ L[ns.KEY.FONT] = "Font"
 L[ns.KEY.STYLE] = "Style"
 L[ns.KEY.SIZE] = "Size"
 L[ns.KEY.COLOR] = "Color"
+L[ns.KEY.X] = "Point"
 
+L[ns.KEY.ICON] = "Show icon"
+L[ns.Desc(ns.KEY.ICON)] = "Show castbar icon"
 L[ns.KEY.COLOR_LEVEL] = "Dynamic color"
 L[ns.Desc(ns.KEY.COLOR_LEVEL)] = "By default, the level color depends on the level of the enemy"
 L[ns.KEY.COLOR_CLASS] = "Enable class colored healthbar"

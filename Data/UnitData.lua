@@ -2,7 +2,7 @@ local _, ns = ...
 
 local UpdateHealthBar, UpdateThreatIndicator = UnitFrameHealthBar_Update, UnitFrame_UpdateThreatIndicator
 local playerFrame, petFrame, targetFrame, totFrame, focusFrame, tofFrame = PlayerFrame, PetFrame, TargetFrame, TargetFrameToT, FocusFrame, FocusFrameToT
-local playerContentCtx, PlayerFrame_OnEvent = playerFrame.PlayerFrameContent.PlayerFrameContentContextual, PlayerFrame_OnEvent
+local playerContentCtx, playerCastBar, PlayerFrame_OnEvent = playerFrame.PlayerFrameContent.PlayerFrameContentContextual, PlayerCastingBarFrame, PlayerFrame_OnEvent
 local targetContentCtx = targetFrame.TargetFrameContent.TargetFrameContentContextual
 local focusContentCtx = focusFrame.TargetFrameContent.TargetFrameContentContextual
 local partyPool = PartyFrame.PartyMemberFramePool
@@ -32,6 +32,19 @@ ns.UNIT_DATA = {
             end
         end,
         LevelShowAfter = function() return "PlayerFrame_UpdateRolesAssigned" end,
+        castBar = playerCastBar,
+        playerCastBar = true,
+        CastBarAnchorPoint = function() return "TOPRIGHT", playerFrame, "BOTTOMRIGHT" end,
+        CastBarResetPosition = function() PlayerFrame_AdjustAttachments() end,
+        castBarRepositionAfter = { "PlayerFrame_AdjustAttachments", "PlayerFrame_AttachCastBar" },
+        CastBarSetFontOrResizeIconAfter = function() return "SetLook", playerCastBar end,
+        castBarIconShowable = true,
+        castBarIconSizeAttached = 16,
+        castBarIconSizeDetached = 26,
+        CastIconPointAttached = function() return "RIGHT", playerCastBar, "LEFT", -5, 0 end,
+        CastIconPointDetached = function () return "RIGHT", playerCastBar, "LEFT", -5, -5 end,
+        CastTimePointDefault = function() return "LEFT", playerCastBar, "RIGHT", 10, 0 end,
+        UpdateCastTime = function() playerCastBar:UpdateCastTimeTextShown() end,
         statusTexture = playerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture,
         ThreatGlow = playerFrame.threatIndicator,
         hitIndicator = playerFrame.feedbackText,
@@ -93,6 +106,15 @@ ns.UNIT_DATA = {
                 targetFrame:CheckLevel();
             end
         end,
+        castBar = targetFrame.spellbar,
+        targetCastbarCVar = true,
+        CastBarAnchorPoint = function() return "TOPLEFT", targetFrame, "BOTTOMLEFT" end,
+        CastBarResetPosition = function() targetFrame.spellbar:AdjustPosition() end,
+        CastBarRepositionAfter = function() return "AdjustPosition", targetFrame.spellbar end,
+        CastBarRepositionAfterScript = function() return "OnShow", targetFrame.spellbar end,
+        castBarIconShield = targetFrame.spellbar.BorderShield,
+        CastTimePointDefault = function() return "LEFT", targetFrame.spellbar, "RIGHT", 8, -1 end,
+        UpdateCastTime = function() targetFrame.spellbar:UpdateCastTimeTextShown() end,
         ThreatGlow = targetFrame.threatIndicator,
         ReputationGlow = targetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor,
         RaidIcon = targetContentCtx.RaidTargetIcon,
@@ -148,6 +170,15 @@ ns.UNIT_DATA = {
                 focusFrame:CheckLevel();
             end
         end,
+        castBar = focusFrame.spellbar,
+        targetCastbarCVar = true,
+        CastBarAnchorPoint = function() return "TOPLEFT", focusFrame, "BOTTOMLEFT" end,
+        CastBarResetPosition = function() targetFrame.spellbar:AdjustPosition() end,
+        CastBarRepositionAfter = function() return "AdjustPosition", focusFrame.spellbar end,
+        CastBarRepositionAfterScript = function() return "OnShow", focusFrame.spellbar end,
+        castBarIconShield = focusFrame.spellbar.BorderShield,
+        CastTimePointDefault = function() return "LEFT", focusFrame.spellbar, "RIGHT", 8, -1 end,
+        UpdateCastTime = function() focusFrame.spellbar:UpdateCastTimeTextShown() end,
         ThreatGlow = focusFrame.threatIndicator,
         ReputationGlow = focusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor,
         RaidIcon = focusContentCtx.RaidTargetIcon,

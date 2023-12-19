@@ -97,6 +97,17 @@ ns[ns.WIDGET.EDIT_BOX] = function()
     return widget
 end
 
+ns[ns.WIDGET.EDIT_BOX_NO_BUTTON] = function()
+    local widget = ns[ns.WIDGET.EDIT_BOX]()
+    local DisableButton = widget.DisableButton
+
+    widget.DisableButton = function (self)
+        DisableButton(self, true)
+    end
+
+    return widget
+end
+
 ns[ns.WIDGET.COLOR_PICKER] = function()
     local widget = ChireWidget(ns.WIDGET.COLOR_PICKER)
 

@@ -23,6 +23,7 @@ local function OnEnableOrProfileChange(startup)
         ct.SetupHealthbarColors(unitData, startup)
         ct:SetupLevel(unitData, startup)
         ct:SetupName(unitData, startup)
+        ct:SetupCastbar(unitData, startup)
     end
 end
 
@@ -73,6 +74,14 @@ function ct:RehookOrUnhook(hook, object, method, Handler)
     end
 end
 
+function ct:RehookOrUnhookScript(hook, object, script, Handler)
+    self:Unhook(object, script)
+
+    if (hook) then
+        self:SecureHookScript(object, script, Handler)
+    end
+end
+
 local function Handle(baseFrame, frame, Handler, Update)
     Handler(frame, baseFrame)
     if (Update) then
@@ -95,6 +104,11 @@ function ct:HideOnShow(hide, frame, HideHook)
     self:RehookOrUnhook(hide, frame, "SetShown", HideHook or ns.Hide)
 end
 
+function ct:ShowOnHide(show, frame, ShowHook)
+    self:RehookOrUnhook(show, frame, "Hide", ShowHook or ns.Show)
+    self:RehookOrUnhook(show, frame, "SetShown", ShowHook or ns.Show)
+end
+
 function ct:HideOnShowAndUpdate(unitData, hide, Frame, Update, HideHook)
     local Handler = function(frame)
         self:HideOnShow(hide, frame, HideHook)
@@ -110,7 +124,14 @@ function ct:SetCVarHook(cVar, _)
         ct:StatusBarFormatHooks(hide)
 
         for _, unitData in pairs(ns.UNIT_DATA) do
-            ct:SetStatusBarsFormats(unitData, true, hide)
+            ct:SetStatusBarsFormats(unitData, false, hide)
+        end
+    elseif (cVar == ns.CVAR.TARGET_CAST_BAR) then
+        ns.CacheTargetCastBarCVar()
+        for _, unitData in pairs(ns.UNIT_DATA) do
+            if (unitData.targetCastbarCVar) then
+                ct:SetupCastbar(unitData, false)
+            end
         end
     end
 end

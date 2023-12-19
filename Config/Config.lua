@@ -44,6 +44,14 @@ local function SetDB(info, value)
     ns.SetDB(info.arg.unit, info.arg.option, value)
 end
 
+local function GetRGBAColorDB(info)
+    return ns.ToRGBA(GetDB(info))
+end
+
+local function SetRGBAColorDB(info, r, g, b, a)
+    SetDB(info, ns.ToHex(r, g, b, a))
+end
+
 local function GetHexColorDB(info)
     return "#" .. GetDB(info):upper()
 end
@@ -63,12 +71,37 @@ local function ValidateHex(info, value)
     return L["colorPicker.invalid"]:format(defaultColor)
 end
 
-local function GetRGBAColorDB(info)
-    return ns.ToRGBA(GetDB(info))
+local function GetOffset(info)
+    return tostring(GetDB(info))
 end
 
-local function SetRGBAColorDB(info, r, g, b, a)
-    SetDB(info, ns.ToHex(r, g, b, a))
+local function ResetOffset(info)
+    ns.SetDBBy(info.arg.unit, info.arg.option.type, ns.KEY.X)
+    ns.SetDBBy(info.arg.unit, info.arg.option.type, ns.KEY.Y)
+end
+
+local function ValidateNumber(_, value)
+    return ns.IsValidNumberOrEmpty(value) or L["offset.invalid"]
+end
+
+local function RootHidden(info)
+    return not ns.GetDBBy(info.arg.unit, info.arg.option.type, ns.KEY.SHOW)
+end
+
+local function RootImmobilized(info)
+    return not ns.GetDBBy(info.arg.unit, info.arg.option.type, ns.KEY.MOVE)
+end
+
+local function TargetCastBarOrRootHidden(info)
+    return ns.TargetCastBarHidden() or RootHidden(info)
+end
+
+local function TargetCastBarOrRootImmobilized(info)
+    return ns.TargetCastBarHidden() or RootImmobilized(info)
+end
+
+local function CastBarDetachedOrRootImmobilized(info)
+    return ns.PlayerCastBarDetached() or RootImmobilized(info)
 end
 
 local function Arg(unit, option)
@@ -93,7 +126,7 @@ end
 
 local function ToTriTable(value, default)
     value = value or default
-    return (ns.IsNumber(value) or not value[1]) and { value, value, value } or value
+    return ns.IsTable(value) and value or { value, value, value }
 end
 
 local function HeaderToggleName(type, Disabled)
@@ -174,8 +207,25 @@ local function AddButton(args, order, disabled, name, atlas, func, arg)
     return order + 1
 end
 
-local function AddResetButton(args, order, unit, option, disabled)
-    return AddButton(args, order, disabled, L["button.reset"], ns.RESET_ICON_ATLAS, SetDB, Arg(unit, option))
+local function AddInput(args, order, unit, option, disabled, width, hideButton, Validate, Get, Set)
+    args["input" .. order] = {
+        type = "input",
+        dialogControl = hideButton and ns.WIDGET.EDIT_BOX_NO_BUTTON or ns.WIDGET.EDIT_BOX,
+        order = order,
+        disabled = disabled,
+        width = width,
+        name = "",
+        get = Get,
+        set = Set,
+        validate = Validate,
+        arg = Arg(unit, option),
+    }
+
+    return order + 1
+end
+
+local function AddResetButton(args, order, unit, option, disabled, Reset)
+    return AddButton(args, order, disabled, L["button.reset"], ns.RESET_ICON_ATLAS, Reset or SetDB, Arg(unit, option))
 end
 
 local function AddRangeSlider(args, order, unit, option, disabled, width)
@@ -200,20 +250,8 @@ end
 local function AddColorPicker(args, order, unit, option, disabled, width)
     local defaultColor = ns.Default(unit, option)
 
-    args["input" .. order] = {
-        type = "input",
-        dialogControl = ns.WIDGET.EDIT_BOX,
-        order = order,
-        disabled = disabled,
-        width = width,
-        name = "",
-        get = GetHexColorDB,
-        set = SetHexColorDB,
-        validate = ValidateHex,
-        arg = Arg(unit, option),
-    }
-
-    order = AddGap(args, order + 1, 0.02)
+    order = AddInput(args, order, unit, option, disabled, width, false, ValidateHex, GetHexColorDB, SetHexColorDB)
+    order = AddGap(args, order, 0.02)
 
     args["picker" .. order] = {
         type = "color",
@@ -230,6 +268,19 @@ local function AddColorPicker(args, order, unit, option, disabled, width)
     }
 
     return AddResetButton(args, order + 1, unit, option, disabled)
+end
+
+local function AddOffsetPicker(args, order, unit, option, disabled, width)
+    order = AddGap(args, order, 0.02)
+    order = AddLabel(args, order, 0.07, "x:", true)
+    order = AddInput(args, order, unit, option, disabled, width, true, ValidateNumber, GetOffset)
+
+    order = AddGap(args, order, 0.033)
+    order = AddLabel(args, order, 0.07, "y:")
+    order = AddInput(args, order, unit, ns.Option(option.type, ns.KEY.Y), disabled, width, true, ValidateNumber, GetOffset)
+
+    order = AddGap(args, order, 0.02)
+    return AddResetButton(args, order, unit, option, disabled, ResetOffset)
 end
 
 local function AddBaseSelector(args, order, get, set, values, sort, name, desc, disabled, width, arg)
@@ -298,6 +349,12 @@ local function AddHeaderToggle(args, order, unit, option, disabled, width)
     return AddToggleable(args, order, unit, option, HeaderToggleName(option.type, disabled), L[ns.Desc(option.type)]:format(unit), disabled, width)
 end
 
+local function AddHeaderToggleOrLabel(args, order, unit, option, disabled, width)
+    return ns.Enabled(unit, option)
+        and AddHeaderToggle(args, order, unit, option, disabled, width)
+        or AddHeaderLabel(args, order, unit, option, disabled, width)
+end
+
 local function AddToggleableRow(args, order, unit, option, disabled, width)
     return AddToggleable(args, order, unit, option, L[option.key], L[ns.Desc(option.key)]:format(unit), disabled, width)
 end
@@ -319,23 +376,17 @@ local function AddToggleables(args, order, unit, type)
 end
 
 local function AddRow(groupArgs, groupOrder, Constructor, unit, types, option, disabled, gapWidths, widgetWidths, skipHeader)
-    widgetWidths, gapWidths = ToTriTable(widgetWidths, 1.04), ToTriTable(gapWidths, 0.04)
+    option, disabled, gapWidths, widgetWidths = ToTriTable(option), ToTriTable(disabled), ToTriTable(gapWidths, 0.04), ToTriTable(widgetWidths, 1.04)
     local order, args = 0, {}
 
-    if (not skipHeader and L[option]) then
-        order = AddLabel(args, order, 0.3, L[option])
+    if (not skipHeader and L[option[1]]) then
+        order = AddLabel(args, order, 0.3, L[option[1]])
     end
 
-    order = AddGap(args, order, gapWidths[1])
-    order = Constructor(args, order, unit, ns.Option(types[1], option[1] or option), disabled, widgetWidths[1])
-
-    if (#types > 1 and #option > 1) then
-        order = AddGap(args, order, gapWidths[2])
-        order = Constructor(args, order, unit, ns.Option(types[2], option[2] or option), disabled, widgetWidths[2])
-
-        if (#types > 2 and #option > 2) then
-            order = AddGap(args, order, gapWidths[3])
-            order = Constructor(args, order, unit, ns.Option(types[3], option[3] or option), disabled, widgetWidths[3])
+    for i=1,3 do
+        if (types[i] and option[i]) then
+            order = AddGap(args, order, gapWidths[i])
+            order = Constructor(args, order, unit, ns.Option(types[i], option[i]), disabled[i], widgetWidths[i])
         end
     end
 
@@ -347,31 +398,6 @@ local function AddFontRows(args, order, unit, types, disabled, gapWidths)
     order = AddRow(args, order, AddStyleSelector, unit, types, ns.KEY.STYLE, disabled, gapWidths)
     order = AddRow(args, order, AddRangeSlider, unit, types, ns.KEY.SIZE, disabled, gapWidths, 0.92)
     return AddRow(args, order, AddColorPicker, unit, types, ns.KEY.COLOR, disabled, gapWidths, 0.77)
-end
-
-local function NameLevelDisabled(info)
-    return not ns.GetDBBy(info.arg.unit, info.arg.option.type, ns.KEY.SHOW)
-end
-
-local function NameLevelGroupConfig(unit)
-    if (not ns.OptionIfEnabled(unit, ns.TYPE.LEVEL, ns.KEY.SHOW)) then
-        return { ns.TYPE.NAME }, { ns.KEY.NAME_CENTERED }, L["nameLevel.header.name"]
-    end
-
-    local options = unit == ns.UNIT.PLAYER and { ns.KEY.NAME_CENTERED } or { ns.KEY.NAME_CENTERED, ns.KEY.COLOR_LEVEL }
-    return { ns.TYPE.NAME, ns.TYPE.LEVEL }, options, L["nameLevel.header.nameLevel"]
-end
-
-local function AddNameLevelGroup(groupArgs, groupOrder, unit)
-    local order, args = 0, {}
-    local types, extraOptions, header = NameLevelGroupConfig(unit)
-
-    order = AddHeader(args, order, header)
-    order = AddRow(args, order, AddHeaderToggle, unit, types, ns.KEY.SHOW, nil, 0.67, 0.425)
-    order = AddFontRows(args, order, unit, types, NameLevelDisabled)
-    order = AddRow(args, order, AddToggleableRow, unit, types, extraOptions, NameLevelDisabled, { 0.615, 0.49 }, { 0.5, 0.7 }, true)
-
-    return AddInlineGroup(groupArgs, groupOrder, args)
 end
 
 local function AddFormatsGroup(groupArgs, groupOrder, unit)
@@ -389,6 +415,57 @@ local function AddFormatsGroup(groupArgs, groupOrder, unit)
     return AddInlineGroup(groupArgs, groupOrder, args)
 end
 
+local function NameLevelGroupConfig(unit)
+    if (not ns.OptionIfEnabled(unit, ns.TYPE.LEVEL, ns.KEY.SHOW)) then
+        return { ns.TYPE.NAME }, { ns.KEY.NAME_CENTERED }, L["nameLevel.header.name"]
+    end
+
+    local options = unit == ns.UNIT.PLAYER and { ns.KEY.NAME_CENTERED } or { ns.KEY.NAME_CENTERED, ns.KEY.COLOR_LEVEL }
+    return { ns.TYPE.NAME, ns.TYPE.LEVEL }, options, L["nameLevel.header.nameLevel"]
+end
+
+local function AddNameLevelGroup(groupArgs, groupOrder, unit)
+    local order, args = 0, {}
+    local types, extraOptions, header = NameLevelGroupConfig(unit)
+
+    order = AddHeader(args, order, header)
+    order = AddRow(args, order, AddHeaderToggle, unit, types, ns.KEY.SHOW, nil, 0.67, 0.425)
+    order = AddFontRows(args, order, unit, types, RootHidden)
+    order = AddRow(args, order, AddToggleableRow, unit, types, extraOptions, RootHidden, { 0.615, 0.49 }, { 0.5, 0.7 }, true)
+
+    return AddInlineGroup(groupArgs, groupOrder, args)
+end
+
+local function CastBarGroupConfig(unit)
+    if (not ns.OptionIfEnabled(unit, ns.TYPE.CASTBAR, ns.KEY.FONT)) then
+        return nil
+    end
+
+    if (unit == ns.UNIT.PLAYER) then
+        return { 0.645, 0.555 }, { nil, ns.PlayerCastBarTimerInvisible }, { CastBarDetachedOrRootImmobilized, ns.PlayerCastBarTimerInvisible }, { ns.PlayerCastBarDetached }
+    end
+
+    return { 0.645, 0.69 }, { ns.TargetCastBarHidden, TargetCastBarOrRootHidden }, { TargetCastBarOrRootImmobilized, ns.TargetCastBarHidden }, ns.TargetCastBarHidden
+end
+
+local function AddCastBarGroup(groupArgs, groupOrder, unit)
+    local headersGaps, disabled, offsetsDisabled, headersDisabled = CastBarGroupConfig(unit)
+
+    if (not headersGaps) then
+        return groupOrder
+    end
+
+    local order, args = 0, {}
+
+    order = AddHeader(args, order, L["castbar.header.name"])
+    order = AddRow(args, order, AddHeaderToggleOrLabel, unit, ns.TYPES_CASTBAR, { ns.KEY.MOVE, ns.KEY.SHOW }, headersDisabled or disabled, headersGaps, 0.425, true)
+    order = AddRow(args, order, AddOffsetPicker, unit, ns.TYPES_CASTBAR, ns.KEY.X, offsetsDisabled, nil, 0.3536)
+    order = AddFontRows(args, order, unit, { ns.TYPE.CASTBAR, ns.TYPE.CASTBAR_TIMER }, disabled)
+    order = AddRow(args, order, AddToggleableRow, unit, ns.TYPES_CASTBAR, { ns.KEY.ICON }, disabled, 0.59, nil, true)
+
+    return AddInlineGroup(groupArgs, groupOrder, args)
+end
+
 local function AddUnitTable(groupArgs, groupOrder, unit)
     local order, args = 0, {}
 
@@ -396,6 +473,7 @@ local function AddUnitTable(groupArgs, groupOrder, unit)
     order = AddToggleables(args, order, unit, ns.TYPE.HP_BAR)
     order = AddFormatsGroup(args, order, unit)
     order = AddNameLevelGroup(args, order, unit)
+    order = AddCastBarGroup(args, order, unit)
 
     groupArgs[unit] = {
         type = "group",

@@ -9,8 +9,16 @@ function ns.Nvl(value, default)
     return default
 end
 
+function ns.IsTable(object)
+    return type(object) == "table"
+end
+
 function ns.IsNumber(object)
     return type(object) == "number"
+end
+
+function ns.IsValidNumberOrEmpty(number)
+    return number == nil or number == "" or tonumber(number)
 end
 
 function ns.Localize(key)

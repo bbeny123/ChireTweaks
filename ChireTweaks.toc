@@ -1,7 +1,7 @@
 ## Interface: 100200
 ## Title: Chire Tweaks
 ## Author: Chire
-## Version: 1.0.0
+## Version: 1.1.0
 ## IconTexture: Interface\AddOns\ChireTweaks\Media\icon.blp
 ## SavedVariables: ChireTweaksDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
@@ -37,6 +37,7 @@ Hideables.lua
 StatusBars.lua
 Name.lua
 Level.lua
+Castbars.lua
 Data\OptionData.lua
 Config\Widgets.lua
 Config\Config.lua

@@ -32,6 +32,7 @@ ns.UNIT = {
 ns.CVAR = {
     STATUS_TEXT_DISPLAY = "statusTextDisplay",
     STATUS_TEXT = "statusText",
+    TARGET_CAST_BAR = "showTargetCastbar",
 }
 
 ns.CVAR_STATUS_TEXT = {
@@ -39,6 +40,11 @@ ns.CVAR_STATUS_TEXT = {
     PERCENT = "PERCENT",
     BOTH = "BOTH",
     NONE = "NONE",
+}
+
+ns.CVAR_TOGGLE = {
+    ENABLED = "1",
+    DISABLED = "0",
 }
 
 ns.POWER_TYPE = {
@@ -74,10 +80,13 @@ ns.TYPE = {
     LEVEL = "level",
     HP_BAR = "healthbar",
     HIDE = "hide",
+    CASTBAR = "castbar",
+    CASTBAR_TIMER = "castbarTimer",
     CHAT = "chat",
 }
 
 ns.TYPES_STATUS_BAR = { ns.TYPE.HEALTH, ns.TYPE.MANA, ns.TYPE.POWER }
+ns.TYPES_CASTBAR = { ns.TYPE.CASTBAR, ns.TYPE.CASTBAR_TIMER }
 
 ns.KEY = {
     BASE = "FormatBase",
@@ -89,6 +98,9 @@ ns.KEY = {
     SIZE = "TextSize",
     COLOR = "TextColor",
     SHOW = "Show",
+    MOVE = "Move",
+    X = "X",
+    Y = "Y",
     NAME_CENTERED = "NameCentered",
     COLOR_LEVEL = "ColorLevel",
     COLOR_CLASS = "ColorClass",
@@ -102,6 +114,7 @@ ns.KEY = {
     GLOW_STATIC_DEBUFF = "DebuffStaticGlow",
     INDICATOR_HIT = "HitIndicator",
     INDICATOR_GROUP = "GroupIndicator",
+    ICON = "Icon",
     ICON_CORNER = "CornerIcon",
     ICON_COMBAT = "CombatIcon",
     ICON_REST = "RestIcon",
@@ -121,6 +134,7 @@ ns.WIDGET = {
     LABEL = "ChireLabel",
     SLIDER = "ChireSlider",
     EDIT_BOX = "ChireEditBox",
+    EDIT_BOX_NO_BUTTON = "ChireEditBoxNoButton",
     COLOR_PICKER = "ChireColorPicker",
     FONT_SELECTOR = "ChireFontSelector"
 }

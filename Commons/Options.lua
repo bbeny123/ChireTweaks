@@ -2,7 +2,7 @@ local addonName, ns = ...
 local ct = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local GetCVar = GetCVar
 
-local statusTextCVarCache
+local statusTextCVarCache, targetCastBarCVarCache
 
 function ns.GetDBRaw(unit, option)
     return ct.db.profile[unit][option.db]
@@ -46,6 +46,10 @@ function ns.SetDB(unit, option, value)
 
     ct.db.profile[unit][option.db] = value
     option.Handler(ns.UNIT_DATA[unit], option.type, option.key)
+end
+
+function ns.SetDBBy(unit, type, key, value)
+    ns.SetDB(unit, ns.Option(type, key), value)
 end
 
 function ns.SetDBIfEnabled(unit, option, value)
@@ -143,4 +147,28 @@ end
 
 function ns.BothStatusText()
     return ns.GetStatusTextCVar() == ns.CVAR_STATUS_TEXT.BOTH
+end
+
+function ns.CacheTargetCastBarCVar()
+    targetCastBarCVarCache = GetCVar(ns.CVAR.TARGET_CAST_BAR)
+end
+
+function ns.GetTargetCastBarCVarRaw()
+    if (not targetCastBarCVarCache) then
+        ns.CacheTargetCastBarCVar()
+    end
+
+    return targetCastBarCVarCache
+end
+
+function ns.TargetCastBarHidden()
+    return ns.GetTargetCastBarCVarRaw() == ns.CVAR_TOGGLE.DISABLED
+end
+
+function ns.PlayerCastBarTimerInvisible()
+    return not ns.UNIT_DATA[ns.UNIT.PLAYER].castBar.showCastTimeSetting
+end
+
+function ns.PlayerCastBarDetached()
+    return not ns.UNIT_DATA[ns.UNIT.PLAYER].castBar.attachedToPlayerFrame
 end

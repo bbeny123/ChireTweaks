@@ -12,6 +12,7 @@ To ensure maximum compatibility, the addon is based entirely on the original, in
 	- format is configurable according to state (mouse-hover, 100%, 0%, base)
 - name: customizable font, centerability
 - level: customizable font, ability to disable dynamic color
+- castbar: ability to move target/focus castbars, customizable spell name & cast time font, ability to show (or hide) cast time & spell icon
 - player portrait raid marker
 - ability to hide:
   - animated rest icon (floating 'zzz' above the player portrait)
