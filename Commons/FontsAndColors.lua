@@ -98,6 +98,7 @@ function ns.SetStatusBarTextsFonts(statusBar, fontObject)
     ns.SetFont(statusBar.TextString, fontObject)
     ns.SetFont(statusBar.LeftText, fontObject)
     ns.SetFont(statusBar.RightText, fontObject)
+    ns.SetFont(statusBar.TextCT, fontObject)
 end
 
 function ns.IsValidHexOrEmpty(hex)
@@ -143,4 +144,5 @@ function ns.SetAllStatusBarTextsColor(statusBar, r, g, b, a)
     ns.SetColor(statusBar.TextString, r, g, b, a)
     ns.SetColor(statusBar.LeftText, r, g, b, a)
     ns.SetColor(statusBar.RightText, r, g, b, a)
+    ns.SetColor(statusBar.TextCT, r, g, b, a)
 end
