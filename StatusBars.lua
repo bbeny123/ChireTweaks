@@ -38,6 +38,10 @@ local function SetStatusBarText(config, statusBar, textString, value, valueMax, 
     local format = config[formatKey]
     local deadText = not ignoreDeadText and config.deadable and format ~= FORMAT.NONE and DeadText(statusBar.unit)
 
+    if (not deadText and format == FORMAT_DEAD) then
+        format = config[KEY.BASE]
+    end
+
     if (BothStatusText() and statusBar.LeftText and statusBar.RightText) then
         local leftText, rightText = FormatBothText(format, value, valueMax, percent, deadText)
         statusBar.LeftText:SetText(leftText)
