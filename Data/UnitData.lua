@@ -16,6 +16,7 @@ ns.UNIT_DATA = {
         portrait = playerFrame.portrait,
         HealthBar = playerFrame.healthbar,
         ManaBar = playerFrame.manabar,
+        AlternatePowerBar = function() return playerFrame.activeAlternatePowerBar end,
         Name = playerFrame.name,
         NamePointDefault = function() return "TOPLEFT", playerFrame.state == "vehicle" and 96 or 88, -27 end,
         NamePointCentered = function() return "TOPLEFT", 99, -27 end,

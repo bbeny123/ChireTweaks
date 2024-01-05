@@ -125,9 +125,14 @@ end
 function ct.SetStatusBarFormat(unitData, type, key, disable)
     local StatusBar = type == ns.TYPE.HEALTH and unitData.HealthBar or unitData.ManaBar
     local powerType = type == ns.TYPE.POWER and POWER_TYPE.SECONDARY or POWER_TYPE.PRIMARY
+    local alternatePowerBar = type ~= ns.TYPE.HEALTH and unitData.AlternatePowerBar and unitData.AlternatePowerBar()
 
     local Handler = function (statusBar)
         CacheStatusBarConfig(statusBar, unitData.unit, type, powerType, key, disable)
+        if (alternatePowerBar) then
+            CacheStatusBarConfig(alternatePowerBar, unitData.unit, type, powerType, key, disable)
+            TextStatusBar_UpdateTextString(alternatePowerBar)
+        end
     end
 
     if (unitData.totFrame) then
@@ -140,13 +145,30 @@ function ct.SetStatusBarFormat(unitData, type, key, disable)
     end)
 end
 
-function ct:StatusBarFormatHooks(unhook)
-    if (unhook) then
-        self:Unhook("TextStatusBar_UpdateTextStringWithValues")
-        self:Unhook("TextStatusBar_UpdateTextString")
-    else
-        self:HookSafe("TextStatusBar_UpdateTextStringWithValues", UpdateTextStringWithValues)
-        self:HookSafe("TextStatusBar_UpdateTextString", UpdateToTTextString)
+local function SetPlayerAlternatePowerBarHooks(unitData, hook)
+    local Handler = function(alternatePowerBar)
+        local playerAlternatePowerBar = unitData.AlternatePowerBar()
+        local clear = not playerAlternatePowerBar or playerAlternatePowerBar ~= alternatePowerBar
+
+        CacheStatusBarConfig(alternatePowerBar, ns.UNIT.PLAYER, ns.TYPE.MANA, POWER_TYPE.PRIMARY, nil, clear)
+        CacheStatusBarConfig(alternatePowerBar, ns.UNIT.PLAYER, ns.TYPE.POWER, POWER_TYPE.SECONDARY, nil, clear)
+
+        if (playerAlternatePowerBar) then
+            TextStatusBar_UpdateTextString(alternatePowerBar)
+        end
+    end
+
+    ct:RehookOrUnhook(hook, "PlayerFrame_OnAlternatePowerBarEnabled", Handler)
+    ct:RehookOrUnhook(hook, "PlayerFrame_OnAlternatePowerBarDisabled", Handler)
+end
+
+function ct:StatusBarFormatHooks(unitData, unhook)
+    local hook = not unhook
+    self:RehookOrUnhook(hook, "TextStatusBar_UpdateTextStringWithValues", UpdateTextStringWithValues)
+    self:RehookOrUnhook(hook, "TextStatusBar_UpdateTextString", UpdateToTTextString)
+
+    if (not unitData or unitData.unit == ns.UNIT.PLAYER) then
+        SetPlayerAlternatePowerBarHooks(unitData, hook)
     end
 end
 

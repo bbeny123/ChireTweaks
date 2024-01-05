@@ -16,7 +16,7 @@ local function OnEnableOrProfileChange(startup)
         ct.SetupHideables(unitData, startup)
 
         if (not ns.NoneStatusText()) then
-            ct:StatusBarFormatHooks()
+            ct:StatusBarFormatHooks(unitData)
             ct:SetStatusBarsFormats(unitData, startup)
         end
 
@@ -121,7 +121,7 @@ function ct:SetCVarHook(cVar, _)
         ns.CacheStatusTextCVar()
 
         local hide = ns.NoneStatusText()
-        ct:StatusBarFormatHooks(hide)
+        ct:StatusBarFormatHooks(nil, hide)
 
         for _, unitData in pairs(ns.UNIT_DATA) do
             ct:SetStatusBarsFormats(unitData, false, hide)

@@ -1,3 +1,7 @@
+### v1.1.2:
+
+  * Player Alternate PowerBar support 
+
 ### v1.1.1:
 
   * Bugfixes
