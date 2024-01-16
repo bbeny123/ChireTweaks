@@ -1,3 +1,7 @@
+### v1.2.0:
+
+  * Bump TOC to 10.2.5
+
 ### v1.1.2:
 
   * Player Alternate PowerBar support 
