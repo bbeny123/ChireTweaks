@@ -1,6 +1,5 @@
 local addonName, ns = ...
 local ct = LibStub("AceAddon-3.0"):GetAddon(addonName)
-local TextStatusBar_UpdateTextString = TextStatusBar_UpdateTextString
 local KEY, POWER_TYPE, FORMAT, FORMAT_DEAD = ns.KEY, ns.POWER_TYPE, ns.FORMAT, ns.FORMAT_DEAD
 local DeadText, FormatText, FormatBothText, BothStatusText, ShowToTText, HideToTText = ns.DeadText, ns.FormatText, ns.FormatBothText, ns.BothStatusText, ns.ShowToTText, ns.HideToTText
 local configCache = {}
@@ -92,12 +91,12 @@ local function UpdateToTTextString(statusBar)
     end
 end
 
-local function OnEnterToTStatuBar(statusBar)
+local function OnEnterToTStatusBar(statusBar)
     statusBar.lockShow = statusBar.lockShow + 1
     UpdateToTTextString(statusBar);
 end
 
-local function OnLeaveToTStatuBar(statusBar)
+local function OnLeaveToTStatusBar(statusBar)
     if (statusBar.lockShow > 0) then
         statusBar.lockShow = statusBar.lockShow - 1;
     end
@@ -122,6 +121,25 @@ local function HideDeadTexts(hide, unitData, statusBar, baseFrame)
     end
 end
 
+local function SetPlayerAlternatePowerBarHooks(unitData, hook)
+    local Handler = function(alternatePowerBar)
+        local playerAlternatePowerBar = unitData.AlternatePowerBar()
+        local clear = not playerAlternatePowerBar or playerAlternatePowerBar ~= alternatePowerBar
+
+        CacheStatusBarConfig(alternatePowerBar, ns.UNIT.PLAYER, ns.TYPE.MANA, POWER_TYPE.PRIMARY, nil, clear)
+        CacheStatusBarConfig(alternatePowerBar, ns.UNIT.PLAYER, ns.TYPE.POWER, POWER_TYPE.SECONDARY, nil, clear)
+        
+        ct:RehookOrUnhook(not clear, playerAlternatePowerBar, "UpdateTextStringWithValues", UpdateTextStringWithValues)
+
+        if (playerAlternatePowerBar) then
+            alternatePowerBar:UpdateTextString()
+        end        
+    end
+
+    ct:RehookOrUnhook(hook, "PlayerFrame_OnAlternatePowerBarEnabled", Handler)
+    ct:RehookOrUnhook(hook, "PlayerFrame_OnAlternatePowerBarDisabled", Handler)
+end
+
 function ct.SetStatusBarFormat(unitData, type, key, disable)
     local StatusBar = type == ns.TYPE.HEALTH and unitData.HealthBar or unitData.ManaBar
     local powerType = type == ns.TYPE.POWER and POWER_TYPE.SECONDARY or POWER_TYPE.PRIMARY
@@ -131,45 +149,28 @@ function ct.SetStatusBarFormat(unitData, type, key, disable)
         CacheStatusBarConfig(statusBar, unitData.unit, type, powerType, key, disable)
         if (alternatePowerBar) then
             CacheStatusBarConfig(alternatePowerBar, unitData.unit, type, powerType, key, disable)
-            TextStatusBar_UpdateTextString(alternatePowerBar)
+            alternatePowerBar:UpdateTextString()
         end
     end
 
+    if (unitData.unit == ns.UNIT.PLAYER) then
+        SetPlayerAlternatePowerBarHooks(unitData, not disable)
+    end
+
     if (unitData.totFrame) then
-        ns.ToggleToTStatusText(disable, type, StatusBar, OnEnterToTStatuBar, OnLeaveToTStatuBar)
+        ns.ToggleToTStatusText(disable, type, StatusBar, OnEnterToTStatusBar, OnLeaveToTStatusBar)
+        ct:RehookOrUnhook(not disable, StatusBar, "UpdateTextString", UpdateToTTextString)
     end
 
     ct.Handle(unitData, StatusBar, Handler, function (baseFrame, statusBar)
         HideDeadTexts(not disable, unitData, statusBar, baseFrame)
-        TextStatusBar_UpdateTextString(statusBar)
-    end)
-end
-
-local function SetPlayerAlternatePowerBarHooks(unitData, hook)
-    local Handler = function(alternatePowerBar)
-        local playerAlternatePowerBar = unitData.AlternatePowerBar()
-        local clear = not playerAlternatePowerBar or playerAlternatePowerBar ~= alternatePowerBar
-
-        CacheStatusBarConfig(alternatePowerBar, ns.UNIT.PLAYER, ns.TYPE.MANA, POWER_TYPE.PRIMARY, nil, clear)
-        CacheStatusBarConfig(alternatePowerBar, ns.UNIT.PLAYER, ns.TYPE.POWER, POWER_TYPE.SECONDARY, nil, clear)
-
-        if (playerAlternatePowerBar) then
-            TextStatusBar_UpdateTextString(alternatePowerBar)
+        
+        if (not unitData.totFrame) then
+            ct:RehookOrUnhook(not disable, statusBar, "UpdateTextStringWithValues", UpdateTextStringWithValues)
         end
-    end
-
-    ct:RehookOrUnhook(hook, "PlayerFrame_OnAlternatePowerBarEnabled", Handler)
-    ct:RehookOrUnhook(hook, "PlayerFrame_OnAlternatePowerBarDisabled", Handler)
-end
-
-function ct:StatusBarFormatHooks(unitData, unhook)
-    local hook = not unhook
-    self:RehookOrUnhook(hook, "TextStatusBar_UpdateTextStringWithValues", UpdateTextStringWithValues)
-    self:RehookOrUnhook(hook, "TextStatusBar_UpdateTextString", UpdateToTTextString)
-
-    if (not unitData or unitData.unit == ns.UNIT.PLAYER) then
-        SetPlayerAlternatePowerBarHooks(unitData, hook)
-    end
+        
+        statusBar:UpdateTextString()
+    end)
 end
 
 local function SetHealthBarTextsFont(baseFrame)
