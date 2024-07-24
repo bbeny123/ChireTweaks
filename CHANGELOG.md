@@ -1,3 +1,8 @@
+### v1.3.0:
+
+  * Bump TOC to 11.0.0 (TWW pre-patch)
+  * Lib update
+
 ### v1.2.1:
 
   * Bump TOC to 10.2.7
