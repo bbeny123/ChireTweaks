@@ -1,3 +1,7 @@
+### v1.3.1:
+
+  * Bump TOC to 11.0.2
+
 ### v1.3.0:
 
   * Bump TOC to 11.0.0 (TWW pre-patch)
