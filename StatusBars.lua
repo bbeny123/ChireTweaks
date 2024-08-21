@@ -106,6 +106,10 @@ end
 local function HideDeadTexts(hide, unitData, statusBar, baseFrame)
     local update
 
+    if (not statusBar) then
+        return 
+    end
+
     if (statusBar.DeadText) then
         ct:HideOnShow(hide, statusBar.DeadText)
         update = true
@@ -118,6 +122,8 @@ local function HideDeadTexts(hide, unitData, statusBar, baseFrame)
 
     if (update and unitData.UpdateDeadText) then
         unitData.UpdateDeadText(baseFrame)
+    elseif (not update and statusBar.GetParent) then
+        HideDeadTexts(hide, unitData, statusBar:GetParent(), baseFrame)
     end
 end
 

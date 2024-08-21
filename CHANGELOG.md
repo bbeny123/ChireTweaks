@@ -1,3 +1,7 @@
+### v1.3.2:
+
+  * Fix overlapping dead text
+
 ### v1.3.1:
 
   * Bump TOC to 11.0.2
