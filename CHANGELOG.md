@@ -1,3 +1,7 @@
+### v1.3.3:
+
+  * Fix chat commands
+
 ### v1.3.2:
 
   * Fix overlapping dead text

@@ -582,9 +582,9 @@ end
 
 function ct:InitConfig()
     LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, OptionsTableCache)
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, L[addonName])
 
-    local configDialog = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, L[addonName])
-    local chatCommand = function() InterfaceOptionsFrame_OpenToCategory(configDialog) end
+    local chatCommand = function() Settings.OpenToCategory(L[addonName]) end
 
     self:RegisterChatCommand(addonName, chatCommand)
     self:RegisterChatCommand("ct", chatCommand)
