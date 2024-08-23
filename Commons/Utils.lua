@@ -57,6 +57,18 @@ function ns.ExtendedList(list, ...)
     return result
 end
 
+function ns.IteratorsToList(...)
+    local result = {}
+
+    for _, iterator in ipairs { ... } do
+        for item in iterator do
+            table.insert(result, item)
+        end
+    end
+
+    return result
+end
+
 function ns.ForEach(list, Handler, ...)
     for _, item in pairs(list) do
         Handler(item, ...)

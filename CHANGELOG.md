@@ -1,3 +1,7 @@
+### v1.3.4:
+
+  * Fix party frames tweaking
+
 ### v1.3.3:
 
   * Fix chat commands
