@@ -24,6 +24,8 @@ Libs\LibSharedMedia-3.0\lib.xml
 Data\Constants.lua
 
 Locales\enUS.lua
+Locales\zhTW.lua
+Locales\zhCN.lua
 
 ChireTweaks.lua
 Commons\Utils.lua
