@@ -1,3 +1,7 @@
+### v1.4.0:
+
+  * Bump TOC to 11.1.0
+
 ### v1.3.4:
 
   * Fix party frames tweaking
